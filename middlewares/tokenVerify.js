@@ -9,7 +9,7 @@ module.exports = async (req, res, next) => {
     try {
         console.log(`access_token: ${req.headers.access_token}`);
         console.log(`refresh_token: ${req.headers.refresh_token}`);
-        console.log(`headers: ${request.headers}`);
+        console.log(`headers: ${req.headers}`);
         let accessTokenValidate = tokenValidate(req.headers.access_token, process.env.TOKEN_SECRET);
         // access token valid
         if (!accessTokenValidate.error) {
