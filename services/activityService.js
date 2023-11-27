@@ -173,9 +173,64 @@ const deleteActivityById = async (email, activityId) => {
     }
 }
 
+const moveActivityToWishList = async (email, activityId) => {
+    try {
+        await prisma.$connect();
+
+        const activity = await prisma.activity.findUnique({
+            where: {
+                activityId: activityId,
+                TimeSection: { Trip: { owner: email } }
+            },
+            select: {
+                TimeSection: true,
+                activityId: true,
+                title: true,
+                note: true,
+                budget: true,
+                location: true,
+                category: true
+            }
+        })
+
+        activity.tripId = activity.TimeSection.tripId;
+        activity.wishActivityId = activity.activityId;
+        delete activity.TimeSection;
+        delete activity.activityId;
+
+        await Promise.all([
+            prisma.activity.delete({
+                where: { activityId: activityId }
+            }),
+            prisma.wishActivity.create({
+                data: activity
+            })
+        ])
+
+        const workerData = {
+            action: 'deleteActivities',
+            data: {
+                tripId: tripId,
+                deleteBudget: activity.budget
+            }
+        };
+        new Worker(
+            `${global.__path_background_workers}/resetTripActualBudget.js`,
+            { workerData: workerData }
+        )
+
+        return { result: activityId }
+    } catch (error) {
+        return errorHandler(error);
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
 module.exports.activityService = {
     getActivities,
     createActivites,
     updateActivities,
-    deleteActivityById
+    deleteActivityById,
+    moveActivityToWishList
 }

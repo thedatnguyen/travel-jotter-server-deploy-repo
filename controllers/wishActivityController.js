@@ -44,8 +44,7 @@ const updateWishActivity = async (req, res) => {
     try {
         const { email } = res.locals.account;
         const { wishActivityId, updateData } = req.body;
-        const { error, result } = await wishActivityService.createWishActivity(email, wishActivityId, updateData);
-
+        const { error, result } = await wishActivityService.updateWishActivity(email, wishActivityId, updateData);
         if (error) return errorHandler(res, error, 400);
 
         res.status(200).send({
@@ -77,8 +76,7 @@ const deleteWishActivity = async (req, res) => {
 const pushWishActivityToTimeSection = async (req, res) => {
     try {
         const { email } = res.locals.account;
-        const { timeSectionId } = req.params;
-        const { wishActivityId, order } = req.body;
+        const { timeSectionId, wishActivityId, order } = req.body;
         const { error, result } = await wishActivityService.pushWishActivityToTimeSection(email, timeSectionId, wishActivityId, order);
 
         if (error) return errorHandler(res, error, 400);

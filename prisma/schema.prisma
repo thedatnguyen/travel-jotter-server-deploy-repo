@@ -38,7 +38,7 @@ model Account {
 }
 
 model RefreshToken {
-  Account      Account @relation(fields: [email], references: [email])
+  Account      Account @relation(fields: [email], references: [email], onDelete: Cascade)
   email        String  @id
   refreshToken String
   iat          BigInt
@@ -55,7 +55,7 @@ model SharedTrip {
 }
 
 model Trip {
-  Account         Account        @relation(fields: [owner], references: [email])
+  Account         Account        @relation(fields: [owner], references: [email], onDelete: Cascade)
   tripId          String         @id @default(uuid())
   owner           String
   title           String
@@ -126,8 +126,8 @@ model Comment {
   content    String
   createAt   DateTime @default(now())
   published  Boolean  @default(true)
-  Account    Account  @relation(fields: [author], references: [email])
-  Activity   Activity @relation(fields: [activityId], references: [activityId])
+  Account    Account  @relation(fields: [author], references: [email], onDelete: Cascade)
+  Activity   Activity @relation(fields: [activityId], references: [activityId], onDelete: Cascade)
 }
 
 model Post {
@@ -170,7 +170,7 @@ model Notification {
   email          String
   message        String
   createAt       DateTime @default(now())
-  Account        Account  @relation(fields: [email], references: [email])
+  Account        Account  @relation(fields: [email], references: [email], onDelete: Cascade)
 }
 
 enum Gender {

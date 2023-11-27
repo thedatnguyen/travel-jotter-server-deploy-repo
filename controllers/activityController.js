@@ -29,7 +29,7 @@ const createActivities = async (req, res) => {
         const { email } = res.locals.account;
 
         const { error: err } = val.createActivitesReqValidate(req.body);
-        if(err) return errorHandler(res, err.details[0], 422)
+        if (err) return errorHandler(res, err.details[0], 422)
 
         const { timeSectionId, activitiesData } = req.body;
         const { result, error } = await activityService.createActivites(email, timeSectionId, activitiesData)
@@ -48,7 +48,7 @@ const updateActivities = async (req, res) => {
         const { email } = res.locals.account;
 
         const { error: err } = val.updateActivitiesReqValidate(req.body);
-        if(err) return errorHandler(res, err.details[0], 422)
+        if (err) return errorHandler(res, err.details[0], 422)
 
         const { timeSectionId, activitiesUpdateData } = req.body;
         const { result, error } = await activityService.updateActivities(email, timeSectionId, activitiesUpdateData)
@@ -65,8 +65,20 @@ const updateActivities = async (req, res) => {
 const deleteActivity = async (req, res) => {
     try {
         const { email } = res.locals.account;
-        const { activityId } = req.query;
-        const { result, error } = await activityService.deleteActivityById(email, activityId);
+        const { activityId, moveToWish } = req.query;
+
+        let result, error;
+
+        if (moveToWish == 'true') {
+            const moveActivity = await activityService.moveActivityToWishList(email, activityId);
+            result = moveActivity.result;
+            error = moveActivity.error;
+        } else {
+            const deleteActivity = await activityService.deleteActivityById(email, activityId);
+            result = deleteActivity.result;
+            error = deleteActivity.error;
+        }
+
         if (error) return errorHandler(res, error, 400);
         res.status(200).send({
             result,

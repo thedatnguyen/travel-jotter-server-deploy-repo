@@ -7,8 +7,7 @@ const prisma = new PrismaClient();
 
 module.exports = async (req, res, next) => {
     try {
-        console.log(`access_token: ${req.headers["access-token"]}`);
-        console.log(`refresh_token: ${req.headers["refresh-token"]}`);
+        
         let accessTokenValidate = tokenValidate(req.headers["access-token"], process.env.TOKEN_SECRET);
         // access token valid
         if (!accessTokenValidate.error) {

@@ -10,6 +10,6 @@ router.route('/').all(tokenVerify)
     .patch(wishController.updateWishActivity)
     .delete(wishController.deleteWishActivity)
 
-router.post('timeSection', tokenVerify, wishController.pushWishActivityToTimeSection);
+router.post('/timeSection', tokenVerify, wishController.pushWishActivityToTimeSection);
 
 module.exports = router;

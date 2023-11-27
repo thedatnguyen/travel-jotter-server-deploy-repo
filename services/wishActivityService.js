@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const { Worker, workerData } = require('worker_threads');
 
 const prisma = new PrismaClient();
 
@@ -110,6 +111,7 @@ const pushWishActivityToTimeSection = async (email, timeSectionId, wishActivityI
             return { error: { message: 'Not in a same trip' } }
 
         const wishActivityData = check[1]
+        wishActivityData.activityId = wishActivityId;
 
         delete wishActivityData.wishActivityId;
         delete wishActivityData.tripId;
@@ -125,6 +127,18 @@ const pushWishActivityToTimeSection = async (email, timeSectionId, wishActivityI
                 where: { wishActivityId: wishActivityId }
             })
         ])
+
+        const workerData = {
+            action: 'addActivities',
+            data: {
+                tripId: wishActivityData.tripId,
+                activitiesData: [wishActivityData]
+            }
+        };
+        new Worker(
+            `${global.__path_background_workers}/resetTripActualBudget.js`,
+            { workerData: workerData }
+        )
 
         return { result: result[0] }
     } catch (error) {
