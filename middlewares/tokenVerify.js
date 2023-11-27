@@ -7,24 +7,23 @@ const prisma = new PrismaClient();
 
 module.exports = async (req, res, next) => {
     try {
-        console.log(`access_token: ${req.headers.access_token}`);
-        console.log(`refresh_token: ${req.headers.refresh_token}`);
-        console.log(`headers: ${JSON.stringify(req.headers)}`);
-        let accessTokenValidate = tokenValidate(req.headers.access_token, process.env.TOKEN_SECRET);
+        console.log(`access_token: ${req.headers["access-token"]}`);
+        console.log(`refresh_token: ${req.headers["refresh-token"]}`);
+        let accessTokenValidate = tokenValidate(req.headers["access-token"], process.env.TOKEN_SECRET);
         // access token valid
         if (!accessTokenValidate.error) {
             res.locals = {
                 account: accessTokenValidate.decoded,
                 tokens: {
-                    access_token: req.headers.access_token,
-                    refresh_token: req.headers.refresh_token
+                    access_token: req.headers["access-token"],
+                    refresh_token: req.headers["refresh-token"]
                 }
             }
             return next();
         }
 
         //* access token invalid, check refresh token *//
-        const { error, decoded } = tokenValidate(req.headers.refresh_token, process.env.REFRESH_TOKEN_SECRET);
+        const { error, decoded } = tokenValidate(req.headers["refresh-token"], process.env.REFRESH_TOKEN_SECRET);
 
         // refresh token invalid
         if (error) return res.status(403).send({ message: error.message });
@@ -34,7 +33,7 @@ module.exports = async (req, res, next) => {
         const refreshToken = await prisma.refreshToken.findUnique({
             where: {
                 email: accountData.email,
-                refreshToken: req.headers.refresh_token
+                refreshToken: req.headers["refresh-token"]
             }
         })
 
