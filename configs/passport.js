@@ -28,9 +28,11 @@ passport.use(new GoogleStrategy(
             const account = await prisma.account.findUnique({
                 where: { email: googleAccount.email }
             })
+            console.log(account);
 
             // account not registered yet: first login -> create new account
             if (!account) {
+                console.log('create new account')
                 const googlePicture = (await axios.get(googleAccount.picture, { responseType: 'arraybuffer' })).data;
                 const pictureBuffer = Buffer.from(googlePicture, 'base64');
                 const { pictureUrl, pictureId } = await dropbox.uploadImage(pictureBuffer);
@@ -52,10 +54,10 @@ passport.use(new GoogleStrategy(
                     data: newAccount
                 })
             }
-
-            return done(null, profile);
         } catch (error) {
             console.log(error);
+        } finally {
+            return done(null, profile);
         }
     }
 ));
