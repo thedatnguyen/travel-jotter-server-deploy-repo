@@ -1,0 +1,44 @@
+{
+  "name": "travel-planning-server",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.5.2",
+    "axios": "^1.6.0",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "~1.4.4",
+    "cookie-session": "^2.0.0",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "dotenv": "^16.3.1",
+    "dropbox": "^10.34.0",
+    "ejs": "~2.6.1",
+    "express": "~4.16.1",
+    "express-session": "^1.17.3",
+    "firebase-admin": "^11.11.0",
+    "fs": "^0.0.1-security",
+    "http-errors": "~1.6.3",
+    "joi": "^17.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "~1.9.1",
+    "nodemailer": "^6.9.7",
+    "nodemon": "^3.0.1",
+    "passport": "^0.6.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-google-oidc": "^0.1.0",
+    "pg": "^8.11.3",
+    "socket.io": "^4.7.2",
+    "uuid": "^9.0.1",
+    "worker-threads": "^1.0.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.5.2"
+  },
+  "description": "# Remote to ec2: `ssh -i jiathinhj_local.pem ec2-user@3.106.216.108`",
+  "main": "app.js",
+  "author": "",
+  "license": "ISC"
+}

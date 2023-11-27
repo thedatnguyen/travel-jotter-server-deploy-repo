@@ -1,0 +1,199 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PendingAccount {
+  email          String @id
+  username       String
+  gender         Gender
+  phoneNumber    String
+  firstName      String
+  lastName       String
+  hashedPassword String
+}
+
+model Account {
+  accountId      String         @unique @default(uuid())
+  email          String         @id
+  username       String         @unique
+  gender         Gender
+  phoneNumber    String
+  firstName      String
+  lastName       String
+  hashedPassword String
+  chatAccountId  Int
+  pictureId      String
+  pictureUrl     String
+  RefreshToken   RefreshToken[]
+  Trip           Trip[]
+  SharedTrip     SharedTrip[]
+  Post           Post[]
+  Comment        Comment[]
+  Notification   Notification[]
+}
+
+model RefreshToken {
+  Account      Account @relation(fields: [email], references: [email])
+  email        String  @id
+  refreshToken String
+  iat          BigInt
+}
+
+model SharedTrip {
+  Account Account  @relation(fields: [email], references: [email], onDelete: Cascade)
+  Trip    Trip     @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
+  email   String
+  tripId  String
+  role    TripRole
+
+  @@id([email, tripId])
+}
+
+model Trip {
+  Account         Account        @relation(fields: [owner], references: [email])
+  tripId          String         @id @default(uuid())
+  owner           String
+  title           String
+  description     String         @default("")
+  locations       String[]
+  startTime       DateTime
+  endTime         DateTime
+  coverPictureId  String?
+  coverPictureUrl String?
+  actualBudget    Int            @default(0)
+  expectedBudget  Int            @default(0)
+  lodging         Json           @default("{}")
+  SharedTrip      SharedTrip[]
+  TimeSection     TimeSection[]
+  TripJournal     TripJournal[]
+  TripPicture     TripPicture[]
+  WishActivity    WishActivity[]
+}
+
+model TripPicture {
+  pictureId  String    @id
+  pictureUrl String
+  tripId     String
+  activityId String?
+  Trip       Trip      @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
+  Activity   Activity? @relation(fields: [activityId], references: [activityId], onDelete: Cascade)
+}
+
+model TimeSection {
+  Trip          Trip       @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
+  timeSectionId String     @id @default(uuid())
+  tripId        String
+  startTime     DateTime
+  endTime       DateTime
+  Activity      Activity[]
+}
+
+model Activity {
+  TimeSection   TimeSection   @relation(fields: [timeSectionId], references: [timeSectionId], onDelete: Cascade)
+  activityId    String        @id @default(uuid())
+  timeSectionId String
+  title         String
+  note          String        @default("")
+  budget        Int           @default(0)
+  location      String
+  category      Category
+  order         Int
+  TripPicture   TripPicture[]
+  Comment       Comment[]
+}
+
+model WishActivity {
+  Trip           Trip     @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
+  tripId         String
+  wishActivityId String   @id @default(uuid())
+  title          String
+  note           String
+  budget         Int      @default(0)
+  location       String
+  category       Category
+  dateCreate     DateTime @default(now())
+}
+
+model Comment {
+  commentId  String   @id @default(uuid())
+  author     String
+  activityId String
+  content    String
+  createAt   DateTime @default(now())
+  published  Boolean  @default(true)
+  Account    Account  @relation(fields: [author], references: [email])
+  Activity   Activity @relation(fields: [activityId], references: [activityId])
+}
+
+model Post {
+  Account          Account            @relation(fields: [author], references: [email], onDelete: Cascade)
+  postId           String             @id @default(uuid())
+  author           String
+  postType         PostType
+  createAt         DateTime           @default(now())
+  title            String
+  description      String
+  TripJournal      TripJournal[]
+  OtherPostPicture OtherPostPicture[]
+}
+
+model TripJournal {
+  Post   Post   @relation(fields: [postId], references: [postId], onDelete: Cascade)
+  Trip   Trip   @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
+  postId String
+  tripId String
+
+  @@id([postId, tripId])
+}
+
+model OtherPostPicture {
+  pictureId  String @id
+  postId     String
+  pictureUrl String
+  Post       Post   @relation(fields: [postId], references: [postId], onDelete: Cascade)
+}
+
+model Follow {
+  following String
+  follower  String
+
+  @@id([follower, following])
+}
+
+model Notification {
+  notificationId String   @id @default(uuid())
+  email          String
+  message        String
+  createAt       DateTime @default(now())
+  Account        Account  @relation(fields: [email], references: [email])
+}
+
+enum Gender {
+  male
+  female
+  not_defined
+}
+
+enum Category {
+  sightseeing
+  foods_and_drinks
+  cafe
+  sport
+  transportation
+  lodging
+}
+
+enum PostType {
+  TripJournal
+  OtherPost
+}
+
+enum TripRole {
+  member
+  owner
+}
