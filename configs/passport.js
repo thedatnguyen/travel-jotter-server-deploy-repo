@@ -54,10 +54,11 @@ passport.use(new GoogleStrategy(
                     data: newAccount
                 })
             }
+
+            done(null, profile);
         } catch (error) {
             console.log(error);
-        } finally {
-            return done(null, profile);
+            done(error);
         }
     }
 ));
