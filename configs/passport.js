@@ -22,39 +22,41 @@ passport.use(new GoogleStrategy(
         callbackURL: '/auth/google/callback'
     },
     async (accessToken, refreshToken, profile, done) => {
-        const googleAccount = profile._json;
+        try {
+            const googleAccount = profile._json;
 
-        const account = await prisma.account.findUnique({
-            where: {
-                email: googleAccount.email
-            }
-        })
-
-        // account not registered yet: first login -> create new account
-        if (!account) {
-            const googlePicture = (await axios.get(googleAccount.picture, { responseType: 'arraybuffer' })).data;
-            const pictureBuffer = Buffer.from(googlePicture, 'base64');
-            const { pictureUrl, pictureId } = await dropbox.uploadImage(pictureBuffer);
-            const newAccount = {
-                email: googleAccount.email,
-                username: googleAccount.email,
-                gender: 'not_defined',
-                firstName: googleAccount.given_name,
-                lastName: googleAccount.family_name,
-                hashedPassword: '',
-                pictureUrl,
-                pictureId,
-                phoneNumber: '',
-            }
-
-            newAccount.chatAccountId = await weavy.createUser(newAccount)
-
-            await prisma.account.create({
-                data: newAccount
+            const account = await prisma.account.findUnique({
+                where: { email: googleAccount.email }
             })
-        }
 
-        return done(null, profile);
+            // account not registered yet: first login -> create new account
+            if (!account) {
+                const googlePicture = (await axios.get(googleAccount.picture, { responseType: 'arraybuffer' })).data;
+                const pictureBuffer = Buffer.from(googlePicture, 'base64');
+                const { pictureUrl, pictureId } = await dropbox.uploadImage(pictureBuffer);
+                const newAccount = {
+                    email: googleAccount.email,
+                    username: googleAccount.email,
+                    gender: 'not_defined',
+                    firstName: googleAccount.given_name,
+                    lastName: googleAccount.family_name,
+                    hashedPassword: '',
+                    pictureUrl,
+                    pictureId,
+                    phoneNumber: '',
+                }
+
+                newAccount.chatAccountId = await weavy.createUser(newAccount)
+
+                await prisma.account.create({
+                    data: newAccount
+                })
+            }
+
+            return done(null, profile);
+        } catch (error) {
+            console.log(error);
+        }
     }
 ));
 
