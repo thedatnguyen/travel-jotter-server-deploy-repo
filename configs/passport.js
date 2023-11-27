@@ -50,9 +50,11 @@ passport.use(new GoogleStrategy(
 
                 newAccount.chatAccountId = await weavy.createUser(newAccount)
 
-                await prisma.account.create({
+                const newAccountData = await prisma.account.create({
                     data: newAccount
                 })
+
+                console.log(newAccountData)
             }
 
             done(null, profile);
