@@ -8,11 +8,24 @@ const dropbox = require('./dropbox');
 const prisma = new PrismaClient();
 
 passport.serializeUser(function (user, cb) {
-    cb(null, user);
+    try {
+        cb(null, user);
+        console.log(`serialize success`);
+    } catch (error) {
+        console.log(`serialize failed`);
+        console.log(error);
+    }
 });
 
 passport.deserializeUser(function (obj, cb) {
-    cb(null, obj);
+    try {
+        cb(null, obj);
+        console.log(`deserialize success`);
+    } catch (error) {
+        console.log(`deserialize failed`);
+        console.log(error);
+    }
+    
 });
 
 passport.use(new GoogleStrategy(
