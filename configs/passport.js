@@ -20,7 +20,7 @@ passport.serializeUser((loginAccount, done) => {
 passport.deserializeUser((loginAccount, done) => {
     try {
         done(null, loginAccount);
-        console.log(`deserialize failed`);
+        console.log(`deserialize success`);
     } catch (error) {
         console.log(`deserialize failed`);
         console.log(error);
@@ -62,7 +62,7 @@ passport.use(new GoogleStrategy(
 
                 newAccount.chatAccountId = await weavy.createUser(newAccount)
 
-                await prisma.account.create({
+                loginAccount = await prisma.account.create({
                     data: newAccount
                 })
             } else {
@@ -70,6 +70,7 @@ passport.use(new GoogleStrategy(
             }
             done(null, loginAccount);
         } catch (error) {
+            console.log(error);
             done(error, false, error.message)
         }
     }
