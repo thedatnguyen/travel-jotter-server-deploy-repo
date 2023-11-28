@@ -7,9 +7,9 @@ const weavy = require('./weavy');
 const dropbox = require('./dropbox');
 const prisma = new PrismaClient();
 
-passport.serializeUser((profile, done) => {
+passport.serializeUser((loginAccount, done) => {
     try {
-        done(null, profile._json);
+        done(null, loginAccount);
         console.log(`serialize success`);
     } catch (error) {
         console.log(`serialize failed`);
@@ -17,44 +17,8 @@ passport.serializeUser((profile, done) => {
     }
 });
 
-passport.deserializeUser(async (profile, done) => {
+passport.deserializeUser((loginAccount, done) => {
     try {
-        const googleAccount = profile;
-        console.log(`google account: ${JSON.stringify(googleAccount)}`)
-        let loginAccount = {}
-
-        const account = await prisma.account.findUnique({
-            where: { email: googleAccount.email }
-        })
-
-        // account not registered yet: first login -> create new account
-        if (!account) {
-            console.log('create new account')
-            const googlePicture = (await axios.get(googleAccount.picture, { responseType: 'arraybuffer' })).data;
-            const pictureBuffer = Buffer.from(googlePicture, 'base64');
-            const { pictureUrl, pictureId } = await dropbox.uploadImage(pictureBuffer);
-            const newAccount = {
-                email: googleAccount.email,
-                username: googleAccount.email,
-                gender: 'not_defined',
-                firstName: googleAccount.given_name,
-                lastName: googleAccount.family_name,
-                hashedPassword: '',
-                pictureUrl,
-                pictureId,
-                phoneNumber: '',
-            }
-
-            newAccount.chatAccountId = await weavy.createUser(newAccount)
-
-            loginAccount = await prisma.account.create({
-                data: newAccount
-            })
-        } else {
-            console.log('account already exists');
-            loginAccount = account;
-        }
-
         done(null, loginAccount);
         console.log(`deserialize success`);
     } catch (error) {
@@ -71,9 +35,42 @@ passport.use(new GoogleStrategy(
         callbackURL: '/auth/google/callback'
     },
     async (accessToken, refreshToken, profile, done) => {
-
+        const googleAccount = profile._json;
+        console.log(`google account: ${JSON.stringify(googleAccount)}`)
+        let loginAccount = {}
         try {
-            done(null, profile._json);
+            const account = await prisma.account.findUnique({
+                where: { email: googleAccount.email }
+            })
+
+            // account not registered yet: first login -> create new account
+            if (!account) {
+                console.log('create new account')
+                const googlePicture = (await axios.get(googleAccount.picture, { responseType: 'arraybuffer' })).data;
+                const pictureBuffer = Buffer.from(googlePicture, 'base64');
+                const { pictureUrl, pictureId } = await dropbox.uploadImage(pictureBuffer);
+                const newAccount = {
+                    email: googleAccount.email,
+                    username: googleAccount.email,
+                    gender: 'not_defined',
+                    firstName: googleAccount.given_name,
+                    lastName: googleAccount.family_name,
+                    hashedPassword: '',
+                    pictureUrl,
+                    pictureId,
+                    phoneNumber: '',
+                }
+
+                newAccount.chatAccountId = await weavy.createUser(newAccount)
+
+                loginAccount = await prisma.account.create({
+                    data: newAccount
+                })
+            } else {
+                loginAccount = account;
+            }
+            
+            done(null, loginAccount);
         } catch (error) {
             console.log(error);
             done(error, false, error.message)
