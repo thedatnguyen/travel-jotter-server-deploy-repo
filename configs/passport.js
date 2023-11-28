@@ -36,7 +36,7 @@ passport.use(new GoogleStrategy(
     },
     async (accessToken, refreshToken, profile, done) => {
         const googleAccount = profile._json;
-        console.log(`google account: ${googleAccount}`)
+        console.log(`google account: ${JSON.stringify(googleAccount)}`)
         let loginAccount = {}
         try {
             const account = await prisma.account.findUnique({
@@ -44,7 +44,7 @@ passport.use(new GoogleStrategy(
             })
 
             // account not registered yet: first login -> create new account
-            if (!account) {
+            if (!account.accountId) {
                 console.log('create new account')
                 const googlePicture = (await axios.get(googleAccount.picture, { responseType: 'arraybuffer' })).data;
                 const pictureBuffer = Buffer.from(googlePicture, 'base64');
