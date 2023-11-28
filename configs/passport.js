@@ -41,10 +41,14 @@ passport.serializeUser(async function (profile, done) {
                 data: newAccount
             })
 
-            console.log(newAccountData)
+            console.log(newAccountData);
         }
-
-        done(null, profile);
+        try {
+            done(null, profile);
+        } catch (error) {
+            console.log(error)
+        }
+        
         console.log(`serialize success`);
     } catch (error) {
         console.log(`serialize failed`);
@@ -105,7 +109,8 @@ passport.use(new GoogleStrategy(
 
         //         console.log(newAccountData)
         //     }
-
+        profile["accessToken"] = accessToken;
+        profile["refreshToken"] = refreshToken;
         done(null, profile);
         // } catch (error) {
         //     console.log(error);
