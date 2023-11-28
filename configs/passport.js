@@ -68,6 +68,8 @@ passport.use(new GoogleStrategy(
             } else {
                 loginAccount = account;
             }
+            
+            res.locals.email = loginAccount.email;
             done(null, loginAccount);
         } catch (error) {
             console.log(error);
