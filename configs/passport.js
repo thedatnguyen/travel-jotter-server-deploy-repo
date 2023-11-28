@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 passport.serializeUser((profile, done) => {
     try {
-        done(null, profile);
+        done(null, profile._json);
         console.log(`serialize success`);
     } catch (error) {
         console.log(`serialize failed`);
@@ -19,7 +19,7 @@ passport.serializeUser((profile, done) => {
 
 passport.deserializeUser(async (profile, done) => {
     try {
-        const googleAccount = profile._json;
+        const googleAccount = profile;
         console.log(`google account: ${JSON.stringify(googleAccount)}`)
         let loginAccount = {}
 
@@ -73,7 +73,7 @@ passport.use(new GoogleStrategy(
     async (accessToken, refreshToken, profile, done) => {
 
         try {
-            done(null, profile);
+            done(null, profile._json);
         } catch (error) {
             console.log(error);
             done(error, false, error.message)
