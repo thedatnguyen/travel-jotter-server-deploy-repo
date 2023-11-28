@@ -73,6 +73,7 @@ app.use(function (err, req, res, next) {
 	console.log(err);
 	
 	if(err.name == 'TokenError' && err.code == 'invalid_grant'){
+		console.log(req.user);
 		return res.redirect(`${process.env.SERVER}/auth/google`);
 	}
 
