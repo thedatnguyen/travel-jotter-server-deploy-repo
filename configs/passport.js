@@ -9,6 +9,7 @@ const prisma = new PrismaClient();
 
 passport.serializeUser((loginAccount, done) => {
     try {
+        console.log('login account at ser: ' + JSON.stringify(loginAccount));
         done(null, loginAccount);
         console.log(`serialize success`);
     } catch (error) {
@@ -19,6 +20,7 @@ passport.serializeUser((loginAccount, done) => {
 
 passport.deserializeUser((loginAccount, done) => {
     try {
+        console.log('login account at des: ' + JSON.stringify(loginAccount));
         done(null, loginAccount);
         console.log(`deserialize success`);
     } catch (error) {
