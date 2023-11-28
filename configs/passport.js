@@ -36,43 +36,42 @@ passport.use(new GoogleStrategy(
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: '/auth/google/callback'
     },
-    async (accessToken, refreshToken, profile, done) => {
+    (accessToken, refreshToken, profile, done) => {
         const googleAccount = profile._json;
         console.log(`google account: ${JSON.stringify(googleAccount)}`)
-        let loginAccount = {}
         try {
-            const account = await prisma.account.findUnique({
+            prisma.account.findUnique({
                 where: { email: googleAccount.email }
+            }).then(async account => {
+                if (!account) {
+                    console.log('create new account')
+                    const googlePicture = (await axios.get(googleAccount.picture, { responseType: 'arraybuffer' })).data;
+                    const pictureBuffer = Buffer.from(googlePicture, 'base64');
+                    const { pictureUrl, pictureId } = await dropbox.uploadImage(pictureBuffer);
+                    const newAccount = {
+                        email: googleAccount.email,
+                        username: googleAccount.email,
+                        gender: 'not_defined',
+                        firstName: googleAccount.given_name,
+                        lastName: googleAccount.family_name,
+                        hashedPassword: '',
+                        pictureUrl,
+                        pictureId,
+                        phoneNumber: '',
+                    }
+
+                    newAccount.chatAccountId = await weavy.createUser(newAccount)
+
+                    await prisma.account.create({
+                        data: newAccount
+                    })
+                }
             })
 
             // account not registered yet: first login -> create new account
-            if (!account) {
-                console.log('create new account')
-                const googlePicture = (await axios.get(googleAccount.picture, { responseType: 'arraybuffer' })).data;
-                const pictureBuffer = Buffer.from(googlePicture, 'base64');
-                const { pictureUrl, pictureId } = await dropbox.uploadImage(pictureBuffer);
-                const newAccount = {
-                    email: googleAccount.email,
-                    username: googleAccount.email,
-                    gender: 'not_defined',
-                    firstName: googleAccount.given_name,
-                    lastName: googleAccount.family_name,
-                    hashedPassword: '',
-                    pictureUrl,
-                    pictureId,
-                    phoneNumber: '',
-                }
 
-                newAccount.chatAccountId = await weavy.createUser(newAccount)
 
-                loginAccount = await prisma.account.create({
-                    data: newAccount
-                })
-            } else {
-                loginAccount = account;
-            }
-            
-            done(null, loginAccount);
+            done(null, googleAccount);
         } catch (error) {
             console.log(error);
             done(error, false, error.message)
