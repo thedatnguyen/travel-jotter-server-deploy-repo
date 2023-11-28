@@ -34,43 +34,47 @@ passport.use(new GoogleStrategy(
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: '/auth/google/callback'
     },
-    async (accessToken, refreshToken, profile, done) => {
+    (accessToken, refreshToken, profile, done) => {
         const googleAccount = profile._json;
         console.log(`google account: ${JSON.stringify(googleAccount)}`)
         let loginAccount = {}
         try {
-            const account = await prisma.account.findUnique({
-                where: { email: googleAccount.email }
-            })
-
-            // account not registered yet: first login -> create new account
-            if (!account) {
-                console.log('create new account')
-                const googlePicture = (await axios.get(googleAccount.picture, { responseType: 'arraybuffer' })).data;
-                const pictureBuffer = Buffer.from(googlePicture, 'base64');
-                const { pictureUrl, pictureId } = await dropbox.uploadImage(pictureBuffer);
-                const newAccount = {
-                    email: googleAccount.email,
-                    username: googleAccount.email,
-                    gender: 'not_defined',
-                    firstName: googleAccount.given_name,
-                    lastName: googleAccount.family_name,
-                    hashedPassword: '',
-                    pictureUrl,
-                    pictureId,
-                    phoneNumber: '',
-                }
-
-                newAccount.chatAccountId = await weavy.createUser(newAccount)
-
-                loginAccount = await prisma.account.create({
-                    data: newAccount
+            new Promise(() => {
+                return prisma.account.findUnique({
+                    where: { email: googleAccount.email }
                 })
-            } else {
-                loginAccount = account;
-            }
-            
-            done(null, loginAccount);
+            })
+                .then(async account => {
+                    // account not registered yet: first login -> create new account
+                    if (!account) {
+                        console.log('create new account')
+                        const googlePicture = (await axios.get(googleAccount.picture, { responseType: 'arraybuffer' })).data;
+                        const pictureBuffer = Buffer.from(googlePicture, 'base64');
+                        const { pictureUrl, pictureId } = await dropbox.uploadImage(pictureBuffer);
+                        const newAccount = {
+                            email: googleAccount.email,
+                            username: googleAccount.email,
+                            gender: 'not_defined',
+                            firstName: googleAccount.given_name,
+                            lastName: googleAccount.family_name,
+                            hashedPassword: '',
+                            pictureUrl,
+                            pictureId,
+                            phoneNumber: '',
+                        }
+
+                        newAccount.chatAccountId = await weavy.createUser(newAccount)
+
+                        loginAccount = await prisma.account.create({
+                            data: newAccount
+                        })
+                    } else {
+                        console.log('Account existed');
+                        console.log('account: ' + JSON.stringify(account))
+                        loginAccount = account;
+                    }
+                })
+                .then(() => done(null, loginAccount))
         } catch (error) {
             console.log(error);
             done(error, false, error.message)
