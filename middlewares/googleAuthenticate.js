@@ -5,5 +5,6 @@ module.exports.getProfile = passport.authenticate('google', {
 });
 
 module.exports.getSession = passport.authenticate('google', {
-    session: true
+    session: true,
+    failureRedirect: '/auth/google'
 })
