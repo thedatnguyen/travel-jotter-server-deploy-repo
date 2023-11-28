@@ -7,9 +7,9 @@ const weavy = require('./weavy');
 const dropbox = require('./dropbox');
 const prisma = new PrismaClient();
 
-passport.serializeUser((loginAccount, done) => {
+passport.serializeUser((profile, done) => {
     try {
-        done(null, loginAccount);
+        done(null, profile);
         console.log(`serialize success`);
     } catch (error) {
         console.log(`serialize failed`);
@@ -17,8 +17,44 @@ passport.serializeUser((loginAccount, done) => {
     }
 });
 
-passport.deserializeUser((loginAccount, done) => {
+passport.deserializeUser(async (profile, done) => {
     try {
+        const googleAccount = profile._json;
+        console.log(`google account: ${JSON.stringify(googleAccount)}`)
+        let loginAccount = {}
+
+        const account = await prisma.account.findUnique({
+            where: { email: googleAccount.email }
+        })
+
+        // account not registered yet: first login -> create new account
+        if (!account) {
+            console.log('create new account')
+            const googlePicture = (await axios.get(googleAccount.picture, { responseType: 'arraybuffer' })).data;
+            const pictureBuffer = Buffer.from(googlePicture, 'base64');
+            const { pictureUrl, pictureId } = await dropbox.uploadImage(pictureBuffer);
+            const newAccount = {
+                email: googleAccount.email,
+                username: googleAccount.email,
+                gender: 'not_defined',
+                firstName: googleAccount.given_name,
+                lastName: googleAccount.family_name,
+                hashedPassword: '',
+                pictureUrl,
+                pictureId,
+                phoneNumber: '',
+            }
+
+            newAccount.chatAccountId = await weavy.createUser(newAccount)
+
+            loginAccount = await prisma.account.create({
+                data: newAccount
+            })
+        } else {
+            console.log('account already exists');
+            loginAccount = account;
+        }
+
         done(null, loginAccount);
         console.log(`deserialize success`);
     } catch (error) {
@@ -34,47 +70,10 @@ passport.use(new GoogleStrategy(
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: '/auth/google/callback'
     },
-    (accessToken, refreshToken, profile, done) => {
-        const googleAccount = profile._json;
-        console.log(`google account: ${JSON.stringify(googleAccount)}`)
-        let loginAccount = {}
+    async (accessToken, refreshToken, profile, done) => {
+
         try {
-            new Promise(() => {
-                return prisma.account.findUnique({
-                    where: { email: googleAccount.email }
-                })
-            })
-                .then(async account => {
-                    // account not registered yet: first login -> create new account
-                    if (!account) {
-                        console.log('create new account')
-                        const googlePicture = (await axios.get(googleAccount.picture, { responseType: 'arraybuffer' })).data;
-                        const pictureBuffer = Buffer.from(googlePicture, 'base64');
-                        const { pictureUrl, pictureId } = await dropbox.uploadImage(pictureBuffer);
-                        const newAccount = {
-                            email: googleAccount.email,
-                            username: googleAccount.email,
-                            gender: 'not_defined',
-                            firstName: googleAccount.given_name,
-                            lastName: googleAccount.family_name,
-                            hashedPassword: '',
-                            pictureUrl,
-                            pictureId,
-                            phoneNumber: '',
-                        }
-
-                        newAccount.chatAccountId = await weavy.createUser(newAccount)
-
-                        loginAccount = await prisma.account.create({
-                            data: newAccount
-                        })
-                    } else {
-                        console.log('Account existed');
-                        console.log('account: ' + JSON.stringify(account))
-                        loginAccount = account;
-                    }
-                })
-                .then(() => done(null, loginAccount))
+            done(null, profile);
         } catch (error) {
             console.log(error);
             done(error, false, error.message)
