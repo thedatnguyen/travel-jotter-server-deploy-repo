@@ -99,7 +99,7 @@ model Activity {
   title         String
   note          String        @default("")
   budget        Int           @default(0)
-  location      String
+  location      String        @default("no location")
   category      Category      @default(others)
   order         Int
   TimeSection   TimeSection   @relation(fields: [timeSectionId], references: [timeSectionId], onDelete: Cascade)
@@ -113,7 +113,7 @@ model WishActivity {
   title          String
   note           String
   budget         Int      @default(0)
-  location       String
+  location       String   @default("no location")
   category       Category @default(others)
   dateCreate     DateTime @default(now())
   Trip           Trip     @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
