@@ -29,33 +29,32 @@ model Account {
   chatAccountId  Int
   pictureId      String
   pictureUrl     String
-  RefreshToken   RefreshToken[]
-  Trip           Trip[]
-  SharedTrip     SharedTrip[]
-  Post           Post[]
   Comment        Comment[]
   Notification   Notification[]
+  Post           Post[]
+  RefreshToken   RefreshToken?
+  SharedTrip     SharedTrip[]
+  Trip           Trip[]
 }
 
 model RefreshToken {
-  Account      Account @relation(fields: [email], references: [email], onDelete: Cascade)
   email        String  @id
   refreshToken String
   iat          BigInt
+  Account      Account @relation(fields: [email], references: [email], onDelete: Cascade)
 }
 
 model SharedTrip {
-  Account Account  @relation(fields: [email], references: [email], onDelete: Cascade)
-  Trip    Trip     @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
   email   String
   tripId  String
   role    TripRole
+  Account Account  @relation(fields: [email], references: [email], onDelete: Cascade)
+  Trip    Trip     @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
 
   @@id([email, tripId])
 }
 
 model Trip {
-  Account         Account        @relation(fields: [owner], references: [email], onDelete: Cascade)
   tripId          String         @id @default(uuid())
   owner           String
   title           String
@@ -70,6 +69,7 @@ model Trip {
   lodging         Json           @default("{}")
   SharedTrip      SharedTrip[]
   TimeSection     TimeSection[]
+  Account         Account        @relation(fields: [owner], references: [email], onDelete: Cascade)
   TripJournal     TripJournal[]
   TripPicture     TripPicture[]
   WishActivity    WishActivity[]
@@ -80,43 +80,43 @@ model TripPicture {
   pictureUrl String
   tripId     String
   activityId String?
-  Trip       Trip      @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
   Activity   Activity? @relation(fields: [activityId], references: [activityId], onDelete: Cascade)
+  Trip       Trip      @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
 }
 
 model TimeSection {
-  Trip          Trip       @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
   timeSectionId String     @id @default(uuid())
   tripId        String
   startTime     DateTime
   endTime       DateTime
   Activity      Activity[]
+  Trip          Trip       @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
 }
 
 model Activity {
-  TimeSection   TimeSection   @relation(fields: [timeSectionId], references: [timeSectionId], onDelete: Cascade)
   activityId    String        @id @default(uuid())
   timeSectionId String
   title         String
   note          String        @default("")
   budget        Int           @default(0)
   location      String
-  category      Category
+  category      Category      @default(others)
   order         Int
-  TripPicture   TripPicture[]
+  TimeSection   TimeSection   @relation(fields: [timeSectionId], references: [timeSectionId], onDelete: Cascade)
   Comment       Comment[]
+  TripPicture   TripPicture[]
 }
 
 model WishActivity {
-  Trip           Trip     @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
   tripId         String
   wishActivityId String   @id @default(uuid())
   title          String
   note           String
   budget         Int      @default(0)
   location       String
-  category       Category
+  category       Category @default(others)
   dateCreate     DateTime @default(now())
+  Trip           Trip     @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
 }
 
 model Comment {
@@ -126,27 +126,27 @@ model Comment {
   content    String
   createAt   DateTime @default(now())
   published  Boolean  @default(true)
-  Account    Account  @relation(fields: [author], references: [email], onDelete: Cascade)
   Activity   Activity @relation(fields: [activityId], references: [activityId], onDelete: Cascade)
+  Account    Account  @relation(fields: [author], references: [email], onDelete: Cascade)
 }
 
 model Post {
-  Account          Account            @relation(fields: [author], references: [email], onDelete: Cascade)
   postId           String             @id @default(uuid())
   author           String
   postType         PostType
   createAt         DateTime           @default(now())
   title            String
   description      String
-  TripJournal      TripJournal[]
   OtherPostPicture OtherPostPicture[]
+  Account          Account            @relation(fields: [author], references: [email], onDelete: Cascade)
+  TripJournal      TripJournal[]
 }
 
 model TripJournal {
-  Post   Post   @relation(fields: [postId], references: [postId], onDelete: Cascade)
-  Trip   Trip   @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
   postId String
   tripId String
+  Post   Post   @relation(fields: [postId], references: [postId], onDelete: Cascade)
+  Trip   Trip   @relation(fields: [tripId], references: [tripId], onDelete: Cascade)
 
   @@id([postId, tripId])
 }
@@ -186,6 +186,7 @@ enum Category {
   sport
   transportation
   lodging
+  others
 }
 
 enum PostType {
