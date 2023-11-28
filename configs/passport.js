@@ -36,6 +36,7 @@ passport.use(new GoogleStrategy(
     },
     async (accessToken, refreshToken, profile, done) => {
         const googleAccount = profile._json;
+        console.log(`google account: ${googleAccount}`)
         let loginAccount = {}
         try {
             const account = await prisma.account.findUnique({
