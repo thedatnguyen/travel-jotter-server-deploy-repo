@@ -44,7 +44,7 @@ passport.use(new GoogleStrategy(
             })
 
             // account not registered yet: first login -> create new account
-            if (!account.accountId) {
+            if (!account) {
                 console.log('create new account')
                 const googlePicture = (await axios.get(googleAccount.picture, { responseType: 'arraybuffer' })).data;
                 const pictureBuffer = Buffer.from(googlePicture, 'base64');
