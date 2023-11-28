@@ -10,8 +10,8 @@ router.route('/signup')
     .post(authController.signUp);
 router.get('/verifyEmail/:token', authController.verifyEmail);
 router.post('/loginWithPassword', authController.loginWithPassword);
-router.get('/google', googleAuthenticate);
-router.get('/google/callback', googleAuthenticate, authController.redirectAndSendGrantCode);
+router.get('/google', googleAuthenticate.getProfile);
+router.get('/google/callback', googleAuthenticate.getSession, authController.redirectAndSendGrantCode);
 router.get('/loginWithGmail', authController.loginWithGmail)
 router.post('/logout', tokenVerify, authController.logout);
 

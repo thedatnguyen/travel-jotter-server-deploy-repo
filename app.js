@@ -6,6 +6,8 @@ const logger = require('morgan');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const session = require('express-session');
+const passport = require('passport');
+require('./configs/passport');
 
 const indexRouter = require('./routes/indexRouter');
 const authRouter = require('./routes/authRouter');
@@ -29,14 +31,20 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-	resave: true,
+	resave: false,
 	saveUninitialized: true,
 	secret: 'SECRET'
 }));
+
 // allow cors
 app.use(cors({
+	credentials: true,
 	origin: '*'
 }));
+
+// config passport
+app.use(passport.session());
+app.use(passport.authenticate('session'));
 
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
@@ -65,11 +73,6 @@ app.use(function (err, req, res, next) {
 	res.status(err.status || 500).send({ err })
 	// res.render('error');
 });
-
-// config passport
-const { passport } = require('./configs/passport');
-app.use(passport.initialize());
-app.use(passport.session());
 
 // config golbal constiables
 global.__path_default_avatar = `${__dirname}/public/images/default-avatar.png`;

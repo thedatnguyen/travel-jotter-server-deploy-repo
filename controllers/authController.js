@@ -75,7 +75,7 @@ const loginWithPassword = async (req, res, next) => {
 
 const redirectAndSendGrantCode = async (req, res) => {
     try {
-        const { email } = req.user._json;
+        const { email } = req.user;
         const grant_code = emailVerifyToken(email, process.env.TOKEN_SECRET);
         return res.redirect(`${process.env.FE_SERVER}/login?grant_code=${grant_code}`)
     } catch (error) {
