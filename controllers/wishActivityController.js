@@ -1,4 +1,5 @@
 const { wishActivityService } = require('../services/wishActivityService');
+const val = require('../validators/wishActivityRequest');
 
 const errorHandler = (response, error, code) => {
     console.log(error);
@@ -27,6 +28,10 @@ const createWishActivity = async (req, res) => {
     try {
         const { email } = res.locals.account;
         const { wishActivityData } = req.body;
+
+        const { error: err } = val.createWish(wishActivityData);
+        if (err) return errorHandler(res, err.details[0], 422);
+
         const { error, result } = await wishActivityService.createWishActivity(email, wishActivityData);
 
         if (error) return errorHandler(res, error, 400);
@@ -43,6 +48,10 @@ const createWishActivity = async (req, res) => {
 const updateWishActivity = async (req, res) => {
     try {
         const { email } = res.locals.account;
+
+        const { error: err } = val.updateWish(req.body);
+        if (err) return errorHandler(res, err.details[0], 422);
+
         const { wishActivityId, updateData } = req.body;
         const { error, result } = await wishActivityService.updateWishActivity(email, wishActivityId, updateData);
         if (error) return errorHandler(res, error, 400);
@@ -76,6 +85,10 @@ const deleteWishActivity = async (req, res) => {
 const pushWishActivityToTimeSection = async (req, res) => {
     try {
         const { email } = res.locals.account;
+
+        const { error: err } = val.pushToTimeSection(req.body);
+        if (err) return errorHandler(res, err.details[0], 422);
+
         const { timeSectionId, wishActivityId, order } = req.body;
         const { error, result } = await wishActivityService.pushWishActivityToTimeSection(email, timeSectionId, wishActivityId, order);
 
