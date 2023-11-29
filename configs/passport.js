@@ -44,6 +44,7 @@ passport.use(new GoogleStrategy(
                 where: { email: googleAccount.email }
             }).then(async account => {
                 if (!account) {
+                    // account not registered yet: first login -> create new account
                     console.log('create new account')
                     const googlePicture = (await axios.get(googleAccount.picture, { responseType: 'arraybuffer' })).data;
                     const pictureBuffer = Buffer.from(googlePicture, 'base64');
@@ -67,9 +68,6 @@ passport.use(new GoogleStrategy(
                     })
                 }
             })
-
-            // account not registered yet: first login -> create new account
-
 
             done(null, googleAccount);
         } catch (error) {

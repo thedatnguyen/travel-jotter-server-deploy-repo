@@ -9,7 +9,7 @@ const updateTripReqValidate = (data) => {
         locations: joi.array().optional(),
         startTime: joi.string().optional(),
         endTime: joi.string().optional(),
-        expectedBudget: joi.string().optional()
+        expectedBudget: joi.number().optional()
     })
     return rules.validate(data);
 }
