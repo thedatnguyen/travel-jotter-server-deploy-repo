@@ -180,6 +180,8 @@ enum Gender {
 }
 
 enum Category {
+  activity
+  flight
   sightseeing
   foods_and_drinks
   cafe
