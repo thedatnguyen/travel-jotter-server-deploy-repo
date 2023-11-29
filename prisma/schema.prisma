@@ -55,24 +55,26 @@ model SharedTrip {
 }
 
 model Trip {
-  tripId          String         @id @default(uuid())
-  owner           String
-  title           String
-  description     String         @default("")
-  locations       String[]
-  startTime       DateTime
-  endTime         DateTime
-  coverPictureId  String?
-  coverPictureUrl String?
-  actualBudget    Int            @default(0)
-  expectedBudget  Int            @default(0)
-  lodging         Json           @default("{}")
-  SharedTrip      SharedTrip[]
-  TimeSection     TimeSection[]
-  Account         Account        @relation(fields: [owner], references: [email], onDelete: Cascade)
-  TripJournal     TripJournal[]
-  TripPicture     TripPicture[]
-  WishActivity    WishActivity[]
+  tripId           String         @id @default(uuid())
+  suggest          String?        @db.Text
+  owner            String
+  title            String
+  description      String         @default("")
+  locations        String[]
+  startTime        DateTime
+  endTime          DateTime
+  coverPictureId   String?
+  coverPictureUrl  String?
+  actualBudget     Int            @default(0)
+  expectedBudget   Int            @default(0)
+  lodging          Json           @default("{}")
+  suggestGenerated Boolean        @default(false)
+  SharedTrip       SharedTrip[]
+  TimeSection      TimeSection[]
+  Account          Account        @relation(fields: [owner], references: [email], onDelete: Cascade)
+  TripJournal      TripJournal[]
+  TripPicture      TripPicture[]
+  WishActivity     WishActivity[]
 }
 
 model TripPicture {

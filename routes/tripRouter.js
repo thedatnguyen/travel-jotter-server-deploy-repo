@@ -18,4 +18,7 @@ router.route('/:tripId/members').all(tokenVerify)
     .post(tripController.editMember)
     .delete(tripController.removeSelfFromTrip)
 
+router.route('/:tripId/suggestion').all(tokenVerify)
+    .post(tripController.generateSuggestion)
+    
 module.exports = router;

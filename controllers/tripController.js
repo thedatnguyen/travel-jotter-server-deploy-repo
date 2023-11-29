@@ -1,3 +1,5 @@
+const { Worker } = require('worker_threads');
+
 const { tripService } = require('../services/tripService');
 const val = require('../validators/tripRequest');
 const errorHandler = (response, error, code) => {
@@ -75,7 +77,7 @@ const updateTrip = async (req, res, next) => {
         trip.tripId = tripId;
 
         const { error: err } = val.updateTripReqValidate(trip);
-        if(err) return errorHandler(res, err.details[0], 422);
+        if (err) return errorHandler(res, err.details[0], 422);
 
         const { error, result } = await tripService.updateTrip(email, trip);
         if (error) return errorHandler(res, error, 400);
@@ -109,7 +111,7 @@ const editMember = async (req, res) => {
         const { tripId } = req.params;
 
         const { error: err } = val.editMemberReqValidate(req.body)
-        if(err) return errorHandler(res, err.details[0], 422)
+        if (err) return errorHandler(res, err.details[0], 422)
 
         const { members } = req.body;
         const { error, result } = await tripService.editMember(email, members, tripId)
@@ -138,6 +140,28 @@ const removeSelfFromTrip = async (req, res) => {
     }
 }
 
+const generateSuggestion = async (req, res) => {
+    try {
+        const { email } = res.locals.account;
+        const { tripId } = req.params;
+
+        const workerData = { email, tripId };
+        const worker = new Worker(
+            `${global.__path_background_workers}/generateSuggest.js`,
+            { workerData: workerData }
+        )
+
+        worker.on('message', result => {
+            res.status(200).send({
+                result,
+                tokens: res.locals.tokens
+            })
+        })
+    } catch (error) {
+        return errorHandler(res, error, 500);
+    }
+}
+
 module.exports = {
     createTrip,
     getAllTrip,
@@ -146,5 +170,6 @@ module.exports = {
     updateTrip,
     getAllMember,
     editMember,
-    removeSelfFromTrip
+    removeSelfFromTrip,
+    generateSuggestion
 }
