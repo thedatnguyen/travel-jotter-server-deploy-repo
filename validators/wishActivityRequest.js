@@ -14,14 +14,17 @@ const createWish = (data) => {
 
 const updateWish = (data) => {
     const rules = joi.object({
-        wishActivityId: joi.string().required(),
-        updateData: joi.object({
-            title: joi.string().optional().allow(''),
-            note: joi.string().optional().allow(''),
-            budget: joi.number().optional(),
-            location: joi.string().optional(),
-            category: joi.string().optional()
-        })
+        tripId: joi.string().required(),
+        wishesDataUpdate: joi.array().items(
+            joi.object({
+                wishActivityId: joi.string().required(),
+                title: joi.string().optional().allow(''),
+                note: joi.string().optional().allow(''),
+                budget: joi.number().optional(),
+                location: joi.string().optional(),
+                category: joi.string().optional()
+            })
+        ).required()
     })
     return rules.validate(data);
 }

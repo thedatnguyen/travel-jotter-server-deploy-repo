@@ -56,16 +56,23 @@ const createWishActivity = async (email, wishActivityData) => {
     }
 }
 
-const updateWishActivity = async (email, wishActivityId, updateData) => {
+const updateWishActivity = async (email, tripId, wishesDataUpdate) => {
     try {
         await prisma.$connect();
-        const result = await prisma.wishActivity.update({
-            where: {
-                wishActivityId: wishActivityId,
-                Trip: { owner: email }
-            },
-            data: updateData
-        })
+        const role = await checkRole(email, tripId);
+        if (role != 'owner') return { error: { message: 'Not owner' } }
+
+        const result = await Promise.all(
+            wishesDataUpdate.map(wishDataUpdate => {
+                prisma.wishActivity.update({
+                    where: {
+                        wishActivityId: wishDataUpdate.wishActivityId,
+                        tripId: tripId
+                    },
+                    data: wishDataUpdate
+                })
+            })
+        )
         return { result }
     } catch (error) {
         return errorHandler(error);

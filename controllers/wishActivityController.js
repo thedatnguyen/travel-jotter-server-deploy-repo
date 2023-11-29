@@ -52,8 +52,8 @@ const updateWishActivity = async (req, res) => {
         const { error: err } = val.updateWish(req.body);
         if (err) return errorHandler(res, err.details[0], 422);
 
-        const { wishActivityId, updateData } = req.body;
-        const { error, result } = await wishActivityService.updateWishActivity(email, wishActivityId, updateData);
+        const { tripId, wishesDataUpdate } = req.body;
+        const { error, result } = await wishActivityService.updateWishActivity(email, tripId, wishesDataUpdate);
         if (error) return errorHandler(res, error, 400);
 
         res.status(200).send({
