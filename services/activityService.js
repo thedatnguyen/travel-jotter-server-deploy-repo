@@ -210,7 +210,7 @@ const moveActivityToWishList = async (email, activityId) => {
         const workerData = {
             action: 'deleteActivities',
             data: {
-                tripId: tripId,
+                tripId: activity.tripId,
                 deleteBudget: activity.budget
             }
         };

@@ -113,7 +113,7 @@ model WishActivity {
   tripId         String
   wishActivityId String   @id @default(uuid())
   title          String
-  note           String
+  note           String   @default("")
   budget         Int      @default(0)
   location       String   @default("no location")
   category       Category @default(others)

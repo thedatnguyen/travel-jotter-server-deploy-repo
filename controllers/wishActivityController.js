@@ -89,8 +89,8 @@ const pushWishActivityToTimeSection = async (req, res) => {
         const { error: err } = val.pushToTimeSection(req.body);
         if (err) return errorHandler(res, err.details[0], 422);
 
-        const { timeSectionId, wishActivityId, order } = req.body;
-        const { error, result } = await wishActivityService.pushWishActivityToTimeSection(email, timeSectionId, wishActivityId, order);
+        const { timeSectionId, activitiesData } = req.body;
+        const { error, result } = await wishActivityService.pushWishActivityToTimeSection(email, timeSectionId, activitiesData);
 
         if (error) return errorHandler(res, error, 400);
 

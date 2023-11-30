@@ -98,40 +98,49 @@ const deleteWishActivity = async (email, wishActivityId) => {
     }
 }
 
-const pushWishActivityToTimeSection = async (email, timeSectionId, wishActivityId, order) => {
+const pushWishActivityToTimeSection = async (email, timeSectionId, activitiesData) => {
     try {
         await prisma.$connect();
-        const check = await Promise.all([
-            prisma.timeSection.findUnique({
-                where: {
-                    timeSectionId: timeSectionId,
-                    Trip: { owner: email }
-                },
-                select: { tripId: true }
-            }),
-            prisma.wishActivity.findUnique({
-                where: { wishActivityId: wishActivityId },
+        // activitiesData = [{ wishActivityId: 1, order: 1}]
+        const tripId = (await prisma.timeSection.findUnique({
+            where: {
+                timeSectionId: timeSectionId,
+                Trip: { owner: email }
+            },
+            select: { Trip: true }
+        })).Trip.tripId;
+
+        const wishActivities = await Promise.all(
+            activitiesData.map(activity => {
+                return prisma.wishActivity.findUnique({
+                    where: {
+                        wishActivityId: activity.wishActivityId,
+                        tripId: tripId
+                    }
+                })
             })
-        ])
+        )
 
-        if (check[0].tripId != check[1].tripId)
-            return { error: { message: 'Not in a same trip' } }
+        if (wishActivities.includes(null)) return { error: { message: 'Not in a same trip' } }
+        const data = [];
+        wishActivities.forEach((wishActivity, index) => {
+            wishActivity.timeSectionId = timeSectionId;
+            wishActivity.order = activitiesData[index].order;
+            wishActivity.activityId = wishActivity.wishActivityId;
+            delete wishActivity.wishActivityId;
+            delete wishActivity.tripId;
+            delete wishActivity.dateCreate;
+            data.push(wishActivity);
+        })
 
-        const wishActivityData = check[1]
-        wishActivityData.activityId = wishActivityId;
-
-        delete wishActivityData.wishActivityId;
-        delete wishActivityData.tripId;
-        delete wishActivityData.dateCreate;
-        wishActivityData.timeSectionId = timeSectionId;
-        wishActivityData.order = order;
-
-        const result = await Promise.all([
-            prisma.activity.create({
-                data: wishActivityData
+        await Promise.all([
+            ...activitiesData.map(activityData => {
+                return prisma.wishActivity.delete({
+                    where: { wishActivityId: activityData.wishActivityId }
+                })
             }),
-            prisma.wishActivity.delete({
-                where: { wishActivityId: wishActivityId }
+            prisma.activity.createMany({
+                data: data
             })
         ])
 
@@ -139,7 +148,7 @@ const pushWishActivityToTimeSection = async (email, timeSectionId, wishActivityI
             action: 'addActivities',
             data: {
                 tripId: wishActivityData.tripId,
-                activitiesData: [wishActivityData]
+                activitiesData: data
             }
         };
         new Worker(
@@ -147,7 +156,7 @@ const pushWishActivityToTimeSection = async (email, timeSectionId, wishActivityI
             { workerData: workerData }
         )
 
-        return { result: result[0] }
+        return { result: data }
     } catch (error) {
         return errorHandler(error);
     } finally {

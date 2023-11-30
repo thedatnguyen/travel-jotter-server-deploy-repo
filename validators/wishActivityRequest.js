@@ -31,9 +31,13 @@ const updateWish = (data) => {
 
 const pushToTimeSection = (data) => {
     const rules = joi.object({
-        wishActivityId: joi.string().required(),
         timeSectionId: joi.string().required(),
-        order: joi.number().required()
+        activitiesData: joi.array().items(
+            joi.object({
+                wishActivityId: joi.string().required(),
+                order: joi.number().required()
+            })
+        )
     })
     return rules.validate(data);
 }
