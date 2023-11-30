@@ -19,7 +19,7 @@ const addTripPicture = async (req, res) => {
         const { tripPicture } = req.body;
         const { error, result } = await tripActivityPictureService.addTripPicture(email, tripPicture);
         if (error) return errorHandler(res, error, 400);
-        return result.status(200).send({
+        return res.status(200).send({
             result,
             tokens: res.locals.tokens
         })
@@ -32,13 +32,13 @@ const changeActivityTagsForTripPicture = async (req, res) => {
     try {
         const { email } = res.locals.account;
 
-        const { error: err } = val.addActivityToPictureReqValidate(req.body);
+        const { error: err } = val.changeActivityToPictureReqValidate(req.body);
         if(err) return errorHandler(res, err.details[0], 422);
         
         const { pictureId, activityId } = req.body;
         const { error, result } = await tripActivityPictureService.changeActivityTagsForTripPicture(email, pictureId, activityId);
         if (error) return errorHandler(res, error, 400);
-        return result.status(200).send({
+        return res.status(200).send({
             result: result.activityId,
             tokens: res.locals.tokens
         })
@@ -53,7 +53,7 @@ const deleteTripPicture = async (req, res) => {
         const { pictureId } = req.query;
         const { error, result } = await tripActivityPictureService.deleteTripPicture(email, pictureId);
         if (error) return errorHandler(res, error, 400);
-        return result.status(200).send({
+        return res.status(200).send({
             result,
             tokens: res.locals.tokens
         })
@@ -83,7 +83,7 @@ const getAllTripPicture = async (req, res) => {
             })
         }
 
-        return result.status(400).send({
+        return res.status(400).send({
             message: 'filter type not found',
             tokens: res.locals.tokens
         })

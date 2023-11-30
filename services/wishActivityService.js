@@ -147,7 +147,7 @@ const pushWishActivityToTimeSection = async (email, timeSectionId, activitiesDat
         const workerData = {
             action: 'addActivities',
             data: {
-                tripId: wishActivityData.tripId,
+                tripId: tripId,
                 activitiesData: data
             }
         };
