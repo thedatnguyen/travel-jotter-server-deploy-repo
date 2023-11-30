@@ -27,7 +27,7 @@ const axios = require('axios');
                 const locations = trip.locations.join(', ');
                 const prompt = `Suggest places for sports, foods, drinks, lodgings and sightseeings in ${locations} along with detailed locations`;
                 const openai = new OpenAI({
-                    apiKey: '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'
+                    apiKey: process.env.OPEN_AI_API_KEY
                 });
                 const chatCompletion = await openai.chat.completions.create({
                     messages: [{ role: "user", content: prompt }],
