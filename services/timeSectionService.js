@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const { v4: uuid } = require('uuid');
 
 const prisma = new PrismaClient();
 const errorHandler = (error) => {
@@ -62,12 +63,13 @@ const createTimeSections = async (email, tripId, timeSectionsData) => {
         if (role != 'owner') return { error: { message: 'Not owner' } }
 
         timeSectionsData.forEach(e => {
-            e.tripId = tripId
+            e.tripId = tripId;
+            e.timeSectionId = uuid();
         });
-        const result = await prisma.timeSection.createMany({
+        await prisma.timeSection.createMany({
             data: timeSectionsData
         })
-        return { result }
+        return { result: timeSectionsData }
     } catch (error) {
         return errorHandler(error);
     } finally {

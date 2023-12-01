@@ -13,11 +13,10 @@ const createTimeSectionsReqValidate = (data) => {
 
 const updateTimeSectionsReqValidate = (data) => {
     const rules = joi.object({
-        tripId: joi.string().required(),
-        timeSectionsData: joi.array().items(joi.object({
+        updateData: joi.object({
             startTime: joi.string().optional(),
             endTime: joi.string().optional()
-        })).required()
+        })
     })
     return rules.validate(data);
 }
