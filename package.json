@@ -17,6 +17,7 @@
     "dropbox": "^10.34.0",
     "ejs": "~2.6.1",
     "express": "~4.16.1",
+    "express-rate-limit": "^7.1.5",
     "express-session": "^1.17.3",
     "firebase-admin": "^11.11.0",
     "fs": "^0.0.1-security",

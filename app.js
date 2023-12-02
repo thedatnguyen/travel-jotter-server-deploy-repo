@@ -7,6 +7,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const session = require('express-session');
 const passport = require('passport');
+const limiter = require('express-rate-limit');
 require('./configs/passport');
 
 const indexRouter = require('./routes/indexRouter');
@@ -23,6 +24,14 @@ const chatRouter = require('./routes/chatRouter');
 // config environment
 dotenv.config();
 
+// config limiter
+const rateLimit = limiter({
+	windowMs: 60 * 1000,
+	max: 50,
+	message: "Limited 50 rpm",
+	headers: true
+})
+
 const app = express();
 
 app.use(logger('dev'));
@@ -35,6 +44,7 @@ app.use(session({
 	saveUninitialized: true,
 	secret: 'SECRET'
 }));
+app.use(rateLimit);
 
 // allow cors
 app.use(cors({
@@ -71,8 +81,8 @@ app.use(function (err, req, res, next) {
 
 	// render the error page
 	console.log(err);
-	
-	if(err.name == 'TokenError' && err.code == 'invalid_grant'){
+
+	if (err.name == 'TokenError' && err.code == 'invalid_grant') {
 		console.log(req.user);
 		return res.redirect(`${process.env.SERVER}/auth/google`);
 	}
