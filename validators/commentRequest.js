@@ -5,6 +5,7 @@ const addComment = (data) => {
         commentData: joi.object({
             activityId: joi.string().required(),
             content: joi.string().required(),
+            published: joi.boolean().optional()
         })
     })
     return rules.validate(data);

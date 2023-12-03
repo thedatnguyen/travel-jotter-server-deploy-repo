@@ -19,7 +19,6 @@
     "express": "~4.16.1",
     "express-rate-limit": "^7.1.5",
     "express-session": "^1.17.3",
-    "firebase-admin": "^11.11.0",
     "fs": "^0.0.1-security",
     "http-errors": "~1.6.3",
     "joi": "^17.11.0",
@@ -32,6 +31,7 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-google-oidc": "^0.1.0",
     "pg": "^8.11.3",
+    "redis": "^4.6.11",
     "socket.io": "^4.7.2",
     "uuid": "^9.0.1",
     "worker-threads": "^1.0.0"

@@ -20,6 +20,7 @@ const commentRouter = require('./routes/commentRouter');
 const tripPictureRouter = require('./routes/tripActivityPictureRouter');
 const wishRouter = require('./routes/wishActivityRouter');
 const chatRouter = require('./routes/chatRouter');
+const notificationRouter = require('./routes/notificationRouter');
 
 // config environment
 dotenv.config();
@@ -66,6 +67,7 @@ app.use('/comment', commentRouter);
 app.use('/tripPicture', tripPictureRouter);
 app.use('/wish', wishRouter);
 app.use('/chat', chatRouter);
+app.use('/notification', notificationRouter);
 
 
 // catch 404 and forward to error handler

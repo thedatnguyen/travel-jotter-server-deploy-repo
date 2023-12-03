@@ -201,9 +201,11 @@ const editMember = async (owner, emails, tripId) => {
                         where: { email_tripId: { email: e, tripId: tripId } }
                     })
                 }
-
+                return null;
             })
         )
+
+        // 123 -> 234 1234
 
         // push notification
         const workerData = {

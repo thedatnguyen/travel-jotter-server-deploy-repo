@@ -7,7 +7,11 @@ const prisma = new PrismaClient();
 
 module.exports = async (req, res, next) => {
     try {
-        
+
+        if (!req.headers["access-token"] || !req.headers["refresh-token"]) {
+            return res.status(403).send({error: {message: 'Missing token'}})
+        }
+
         let accessTokenValidate = tokenValidate(req.headers["access-token"], process.env.TOKEN_SECRET);
         // access token valid
         if (!accessTokenValidate.error) {
@@ -33,18 +37,18 @@ module.exports = async (req, res, next) => {
             where: {
                 email: accountData.email,
                 refreshToken: req.headers["refresh-token"]
-            }
+            },
         })
 
         // refresh token not found in DB
-        if (!refreshToken) return res.status(403).send({ message: 'Unauthorized' });
+        if (!refreshToken) return res.status(403).send({error: { message: 'Unauthorized' }});
 
         // refresh token expired due to logiin session ended
         if (BigInt(new Date().getTime()) - refreshToken.iat > 1000 * 60 * 60 * 24 * 365) {
             await prisma.refreshToken.delete({
                 where: { email: accountData.email }
             })
-            return res.status(401).send({ message: 'Login session end' });
+            return res.status(401).send({error: { message: 'Login session end' }});
         }
 
         // authorize success, update refresh token
@@ -65,7 +69,7 @@ module.exports = async (req, res, next) => {
         next();
     } catch (error) {
         console.log(error);
-        res.status(500).send({ message: error.message })
+        res.status(500).send({error: { message: error.message }})
     } finally {
         await prisma.$disconnect();
     }

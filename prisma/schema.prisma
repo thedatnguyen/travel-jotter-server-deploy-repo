@@ -169,10 +169,11 @@ model Follow {
 
 model Notification {
   notificationId String   @id @default(uuid())
-  email          String
-  message        String
+  owner          String
+  title          String
+  content        String
   createAt       DateTime @default(now())
-  Account        Account  @relation(fields: [email], references: [email], onDelete: Cascade)
+  Account        Account  @relation(fields: [owner], references: [email], onDelete: Cascade)
 }
 
 enum Gender {
