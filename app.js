@@ -28,7 +28,7 @@ dotenv.config();
 // config limiter
 const rateLimit = limiter({
 	windowMs: 60 * 1000,
-	max: 50,
+	max: 100,
 	message: "Limited 50 rpm",
 	headers: true
 })
