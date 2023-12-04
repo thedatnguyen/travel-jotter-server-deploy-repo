@@ -8,7 +8,11 @@ const cors = require('cors');
 const session = require('express-session');
 const passport = require('passport');
 const limiter = require('express-rate-limit');
+const http = require('http');
+// const { Server } = require('socket.io')
+
 require('./configs/passport');
+// const { configIO } = require('./configs/socketio');
 
 const indexRouter = require('./routes/indexRouter');
 const authRouter = require('./routes/authRouter');
@@ -34,6 +38,11 @@ const rateLimit = limiter({
 })
 
 const app = express();
+const server = http.createServer(app);
+
+//config socket.io
+const { config } = require('./configs/socketio');
+config(server);
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -70,6 +79,7 @@ app.use('/chat', chatRouter);
 app.use('/notification', notificationRouter);
 
 
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
 	next(createError(404));
@@ -95,6 +105,6 @@ app.use(function (err, req, res, next) {
 
 // config golbal constiables
 global.__path_default_avatar = `${__dirname}/public/images/default-avatar.png`;
-global.__path_background_workers = `${__dirname}/background_workers`
+global.__path_background_workers = `${__dirname}/background_workers`;
 
-module.exports = app;
+module.exports = { app, server };

@@ -1,9 +1,10 @@
 const { createClient } = require('redis');
 
+const redisClient = createClient({
+    url: process.env.REDIS_SERVER
+})
+
 const get = async (key) => {
-    const redisClient = createClient({
-        url: process.env.REDIS_SERVER
-    });
     await redisClient.connect();
     try {
         const result = await redisClient.get(key);
@@ -16,19 +17,19 @@ const get = async (key) => {
     }
 }
 
-const set = async (records, exp) => {
-    const redisClient = createClient({
-        url: process.env.REDIS_SERVER
-    });
+const set = async (records) => {
     await redisClient.connect();
     try {
         if (!Array.isArray(records)) records = [records];
-        const result = await Promise.all(
+        const result = await Promise.allSettled(
             records.map(e => {
-                redisClient.set(e.key, JSON.stringify(e.value), {
-                    EX: exp,
-                    NX: true
-                })
+                if (e.key && e.value) {
+                    redisClient.set(`${e.key}`, JSON.stringify(e.value),
+                        { NX: true },
+                        (err, rep) => {
+                            if (err) console.log(err);
+                        })
+                }
             })
         )
         return { result }
@@ -41,14 +42,13 @@ const set = async (records, exp) => {
 }
 
 const del = async (keys) => {
-    const redisClient = createClient({
-        url: process.env.REDIS_SERVER
-    });
     await redisClient.connect();
     try {
         if (!Array.isArray(keys)) keys = [keys];
-        const result = await Promise.all(
-            keys.map(key => redisClient.del(key))
+        const result = await Promise.allSettled(
+            keys.map(key => {
+                if (redisClient.exists(key)) { redisClient.del(key) }
+            })
         )
         return { result }
     } catch (error) {
@@ -60,9 +60,6 @@ const del = async (keys) => {
 }
 
 const pub = async (chanel, data) => {
-    const redisClient = createClient({
-        url: process.env.REDIS_SERVER
-    });
     await redisClient.connect();
     try {
         const result = await redisClient.publish(chanel, JSON.stringify(data));

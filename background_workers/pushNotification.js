@@ -1,7 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const { workerData } = require('worker_threads');
 const messageBroker = require('../configs/caching');
-
 (
     async () => {
         const prisma = new PrismaClient();
@@ -39,9 +38,20 @@ const messageBroker = require('../configs/caching');
                     notifications = [...addNoti, ...removeNoti];
 
                     // push noti
-                    await Promise.all(
-                        notifications.map(notification => {
-                            messageBroker.pub('notifications', notification);
+                    await Promise.allSettled(
+                        notifications.map(async notification => {
+                            // messageBroker.pub('notifications', notification);
+                            const { result: socketId } = await messageBroker.get(notification.owner);
+                            if (socketId) {
+                                messageBroker.pub('notification', {
+                                    socketId,
+                                    data: {
+                                        title: notification.title,
+                                        content: notification.content,
+                                        createAt: notification.createAt
+                                    }
+                                });
+                            }
                             return null;
                         })
                     )
@@ -66,8 +76,18 @@ const messageBroker = require('../configs/caching');
                         createAt: new Date().toISOString()
                     }
 
-                    //push noti
-                    await messageBroker.pub('notifications', notification)
+                    // push noti
+                    const { result: socketId } = await messageBroker.get(owner);
+                    if (socketId) {
+                        messageBroker.pub('notification', {
+                            socketId,
+                            data: {
+                                title: notification.title,
+                                content: notification.content,
+                                createAt: notification.createAt
+                            }
+                        });
+                    }
 
                     // add to database
                     await prisma.notification.create({
