@@ -7,7 +7,25 @@ const weavy = require('../configs/weavy');
 const prisma = new PrismaClient();
 const errorHandler = (error) => {
     console.log(error);
-    return { error: { message: error.message } }
+    return { error: { message: error.message }, result: undefined }
+}
+
+const getAllAccounts = async () => {
+    try {
+        await prisma.$connect();
+        const result = await prisma.account.findMany({
+            select: {
+                email: true,
+                username: true,
+                pictureUrl: true
+            }
+        })
+        return { result }
+    } catch (error) {
+        return errorHandler(error)
+    } finally {
+        await prisma.$disconnect();
+    }
 }
 
 const changeAvatarPicture = async (pictureId, pictureUrl, picture, chatAccountId) => {
@@ -83,6 +101,7 @@ const changePasswordWithoutOldPassword = async (email, newPassword) => {
 }
 
 module.exports.profileService = {
+    getAllAccounts,
     changeAvatarPicture,
     updateInformation,
     changePassword,

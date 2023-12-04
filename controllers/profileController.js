@@ -10,10 +10,22 @@ const errorHandler = (response, error, code) => {
     })
 }
 
+const getAllAccounts = async (req, res) => {
+    try {
+        const { error, result } = await profileService.getAllAccounts();
+        if (error) return errorHandler(res, error, 400);
+        return res.status(200).send({
+            result,
+            tokens: res.locals.tokens
+        })
+    } catch (error) {
+        return errorHandler(res, error, 500);
+    }
+}
 const updateAvatar = async (req, res) => {
     try {
         const { error: err } = val.updateAvatarReqValidate(req.body);
-        if(err) return errorHandler(res, err.details[0], 422)
+        if (err) return errorHandler(res, err.details[0], 422)
 
         const { chatAccountId, pictureId, pictureUrl } = res.locals.account;
         const { picture } = req.body;
@@ -30,7 +42,7 @@ const updateAvatar = async (req, res) => {
 const updateInformation = async (req, res) => {
     try {
         const { error: err } = val.updateInformationReqValidate(req.body);
-        if(err) return errorHandler(res, err.details[0], 422)
+        if (err) return errorHandler(res, err.details[0], 422)
 
         const { email } = res.locals.account;
         const newData = req.body;
@@ -47,7 +59,7 @@ const updateInformation = async (req, res) => {
 const changePassword = async (req, res) => {
     try {
         const { error: err } = val.changePasswordReqValidate(req.body);
-        if(err) return errorHandler(res, err.details[0], 422)
+        if (err) return errorHandler(res, err.details[0], 422)
 
         const { email } = res.locals.account;
         const { newPassword, oldPassword } = req.body;
@@ -87,6 +99,7 @@ const resetPasswordFromEmail = async (req, res) => {
 }
 
 module.exports = {
+    getAllAccounts,
     updateAvatar,
     updateInformation,
     changePassword,
