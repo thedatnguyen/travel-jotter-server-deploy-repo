@@ -84,7 +84,9 @@ const messageBroker = require('../configs/caching');
                             data: {
                                 title: notification.title,
                                 content: notification.content,
-                                createAt: notification.createAt
+                                createAt: notification.createAt,
+                                type: 'leave',
+                                userLeave: leave
                             }
                         });
                     }
