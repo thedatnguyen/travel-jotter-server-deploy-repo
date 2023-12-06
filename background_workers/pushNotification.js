@@ -10,14 +10,11 @@ const messageBroker = require('../configs/caching');
             switch (action) {
                 case 'editTripMembers': {
                     const { tripId, addMembers, removeMembers } = data;
-                    const { title, owner } = await prisma.trip.findUnique({
-                        where: { tripId: tripId },
-                        select: {
-                            title: true,
-                            owner: true,
-                        }
+                    const trip = await prisma.trip.findUnique({
+                        where: { tripId: tripId }
                     })
-                    // const title = trip.title, owner = trip.owner;
+
+                    const { title, owner } = trip;
 
                     const addNoti = addMembers.map(email => {
                         return {
@@ -43,12 +40,15 @@ const messageBroker = require('../configs/caching');
                             // messageBroker.pub('notifications', notification);
                             const { result: socketId } = await messageBroker.get(notification.owner);
                             if (socketId) {
+                                const type = notification.title[0] == 'S' ? 'removed' : 'added'
                                 messageBroker.pub('notification', {
                                     socketId,
                                     data: {
                                         title: notification.title,
                                         content: notification.content,
-                                        createAt: notification.createAt
+                                        createAt: notification.createAt,
+                                        trip: trip,
+                                        type: type
                                     }
                                 });
                             }

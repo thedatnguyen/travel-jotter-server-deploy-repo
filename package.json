@@ -25,7 +25,6 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
     "nodemailer": "^6.9.7",
-    "nodemon": "^3.0.1",
     "openai": "^4.20.1",
     "passport": "^0.6.0",
     "passport-google-oauth20": "^2.0.0",
@@ -37,10 +36,10 @@
     "worker-threads": "^1.0.0"
   },
   "devDependencies": {
+    "nodemon": "^3.0.1",
     "prisma": "^5.5.2"
   },
-  "description": "# Remote to ec2: `ssh -i jiathinhj_local.pem ec2-user@3.106.216.108`",
   "main": "app.js",
-  "author": "",
+  "author": "jiathinhj - hoangvugiathinh@gmail.com",
   "license": "ISC"
 }

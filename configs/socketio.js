@@ -14,7 +14,7 @@ module.exports.config = async (server) => {
     await subscriber.connect();
     subscriber.subscribe('notification', message => {
         const { socketId, data } = JSON.parse(message);
-        console.log(data)
+        console.log(`${socketId}:${data}`)
         io.to(socketId).emit('notification', data);
     })
     io.on('connection', socket => {

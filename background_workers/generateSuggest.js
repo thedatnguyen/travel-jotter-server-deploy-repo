@@ -1,7 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const { OpenAI } = require('openai')
 const { parentPort, workerData } = require('worker_threads');
-const axios = require('axios');
 
 (
     async () => {
@@ -12,16 +11,22 @@ const axios = require('axios');
             await prisma.$connect();
 
             const trip = await prisma.trip.findUnique({
-                where: {
-                    tripId: tripId,
-                    owner: email
-                }
+                where: { tripId: tripId }
             })
 
-            if (!trip || trip.suggestGenerated) {
+            // trip suggestion already exists //
+            if (trip.suggestGenerated) {
+                parentPort.postMessage({
+                    status: 'success',
+                    content: trip.suggestGenerated
+                })
+            }
+            
+            // generate new suggestion, owner only //
+            else if (trip.owner != email) {
                 parentPort.postMessage({
                     status: 'failed',
-                    content: 'suggestion already generated || not owner'
+                    content: 'not owner'
                 })
             } else {
                 const locations = trip.locations.join(', ');
@@ -33,14 +38,14 @@ const axios = require('axios');
                     messages: [{ role: "user", content: prompt }],
                     model: "gpt-3.5-turbo",
                 });
-                
+
                 parentPort.postMessage({
                     status: 'success',
                     content: chatCompletion.choices[0].message.content
                 });
 
                 await prisma.trip.update({
-                    where: { tripId: tripId},
+                    where: { tripId: tripId },
                     data: {
                         suggest: chatCompletion.choices[0].message.content,
                         suggestGenerated: true
