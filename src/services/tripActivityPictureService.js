@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 
-const dropbox = require('../configs/dropbox');
+const dropbox = require('../utils/dropbox');
 
 const prisma = new PrismaClient();
 const errorHandler = (error) => {

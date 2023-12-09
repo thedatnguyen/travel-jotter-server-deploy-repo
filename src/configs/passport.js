@@ -3,8 +3,8 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const { PrismaClient } = require('@prisma/client');
 const axios = require('axios');
 
-const weavy = require('./weavy');
-const dropbox = require('./dropbox');
+const weavy = require('../utils/weavy');
+const dropbox = require('../utils/dropbox');
 const prisma = new PrismaClient();
 
 passport.serializeUser((loginAccount, done) => {

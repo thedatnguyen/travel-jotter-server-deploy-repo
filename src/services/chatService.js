@@ -1,5 +1,5 @@
-const weavy = require('../configs/weavy');
-const dropbox = require('../configs/dropbox');
+const weavy = require('../utils/weavy');
+const dropbox = require('../utils/dropbox');
 
 const errorHandler = (err) => {
 	console.log(err);

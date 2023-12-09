@@ -1,8 +1,8 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 
-const dropbox = require('../configs/dropbox');
-const weavy = require('../configs/weavy');
+const dropbox = require('../utils/dropbox');
+const weavy = require('../utils/weavy');
 
 const prisma = new PrismaClient();
 const errorHandler = (error) => {

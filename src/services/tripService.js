@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const { Worker } = require('worker_threads');
 
-const dropbox = require('../configs/dropbox');
+const dropbox = require('../utils/dropbox');
 
 const prisma = new PrismaClient();
 const errorHandler = (error) => {

@@ -1,5 +1,5 @@
 const { profileService } = require('../services/profileService');
-const { sendMail } = require('../configs/nodemailer/sendMail');
+const { sendMail } = require('../utils/nodemailer');
 const val = require('../validators/profileRequest');
 
 const errorHandler = (response, error, code) => {

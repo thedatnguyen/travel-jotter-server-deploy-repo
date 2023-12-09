@@ -1,6 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const { workerData } = require('worker_threads');
-const messageBroker = require('../configs/caching');
+const messageBroker = require('../utils/redis');
 
 (async () => {
   const prisma = new PrismaClient()

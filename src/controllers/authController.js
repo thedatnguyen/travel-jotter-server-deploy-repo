@@ -1,6 +1,5 @@
-const { sendMail } = require('../configs/nodemailer/sendMail');
-const { emailVerifyToken } = require('../configs/jwt/jwtGenerate');
-const { tokenValidate } = require('../configs/jwt/jwtValidate');
+const { sendMail } = require('../utils/nodemailer');
+const { emailVerifyToken, tokenValidate } = require('../utils/jwt');
 const { authService } = require('../services/authService');
 
 const errorHandler = (response, error, code) => {
