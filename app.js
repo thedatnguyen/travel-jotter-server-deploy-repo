@@ -9,10 +9,7 @@ const session = require('express-session');
 const passport = require('passport');
 const limiter = require('express-rate-limit');
 const http = require('http');
-// const { Server } = require('socket.io')
-
 require('./configs/passport');
-// const { configIO } = require('./configs/socketio');
 
 const indexRouter = require('./routes/indexRouter');
 const authRouter = require('./routes/authRouter');
@@ -33,7 +30,7 @@ dotenv.config();
 const rateLimit = limiter({
 	windowMs: 60 * 1000,
 	max: 100,
-	message: "Limited 50 rpm",
+	message: "Limited 100 rpm",
 	headers: true
 })
 

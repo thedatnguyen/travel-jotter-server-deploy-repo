@@ -36,6 +36,7 @@
     "worker-threads": "^1.0.0"
   },
   "devDependencies": {
+    "eslint": "^8.55.0",
     "nodemon": "^3.0.1",
     "prisma": "^5.5.2"
   },
