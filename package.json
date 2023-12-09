@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "node ./bin/www",
+    "dev": "nodemon ./bin/www",
+    "fix": "npx eslint --fix .",
+    "build": "docker buildx build --platform linux/amd64 . -t thedatnguyen/travel-jotter-be:$tag"
   },
   "dependencies": {
     "@prisma/client": "^5.5.2",
@@ -41,6 +44,6 @@
     "prisma": "^5.5.2"
   },
   "main": "app.js",
-  "author": "jiathinhj - hoangvugiathinh@gmail.com",
+  "author": "thedatnguyen - thedatnguyen98@gmail.com & jiathinhj - hoangvugiathinh@gmail.com",
   "license": "ISC"
 }

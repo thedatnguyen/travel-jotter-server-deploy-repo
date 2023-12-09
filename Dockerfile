@@ -4,4 +4,4 @@ COPY . .
 RUN npm install
 COPY . .
 EXPOSE 2708
-CMD [ "node", "bin/www" ]
+CMD [ "node", "./bin/www" ]

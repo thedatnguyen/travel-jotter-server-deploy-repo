@@ -9,19 +9,19 @@ const session = require('express-session');
 const passport = require('passport');
 const limiter = require('express-rate-limit');
 const http = require('http');
-require('./configs/passport');
 
-const indexRouter = require('./routes/indexRouter');
-const authRouter = require('./routes/authRouter');
-const tripRouter = require('./routes/tripRouter');
-const profileRouter = require('./routes/profileRouter');
-const timeSectionRouter = require('./routes/timeSectionRouter');
-const activityRouter = require('./routes/activityRouter');
-const commentRouter = require('./routes/commentRouter');
-const tripPictureRouter = require('./routes/tripActivityPictureRouter');
-const wishRouter = require('./routes/wishActivityRouter');
-const chatRouter = require('./routes/chatRouter');
-const notificationRouter = require('./routes/notificationRouter');
+require('./src/configs/passport');
+const indexRouter = require('./src/routes/indexRouter');
+const authRouter = require('./src/routes/authRouter');
+const tripRouter = require('./src/routes/tripRouter');
+const profileRouter = require('./src/routes/profileRouter');
+const timeSectionRouter = require('./src/routes/timeSectionRouter');
+const activityRouter = require('./src/routes/activityRouter');
+const commentRouter = require('./src/routes/commentRouter');
+const tripPictureRouter = require('./src/routes/tripActivityPictureRouter');
+const wishRouter = require('./src/routes/wishActivityRouter');
+const chatRouter = require('./src/routes/chatRouter');
+const notificationRouter = require('./src/routes/notificationRouter');
 
 // config environment
 dotenv.config();
@@ -38,7 +38,7 @@ const app = express();
 const server = http.createServer(app);
 
 //config socket.io
-const { config } = require('./configs/socketio');
+const { config } = require('./src/configs/socketio');
 config(server);
 
 app.use(logger('dev'));
@@ -104,6 +104,6 @@ app.use(function (err, req, res, next) {
 
 // config golbal constiables
 global.__path_default_avatar = `${__dirname}/public/images/default-avatar.png`;
-global.__path_background_workers = `${__dirname}/background_workers`;
+global.__path_background_workers = `${__dirname}/src/background_workers`;
 
 module.exports = { app, server };
