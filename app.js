@@ -30,9 +30,9 @@ dotenv.config();
 const rateLimit = limiter({
 	windowMs: 60 * 1000,
 	max: 100,
-	message: "Limited 100 rpm",
+	message: 'Limited 100 rpm',
 	headers: true
-})
+});
 
 const app = express();
 const server = http.createServer(app);
@@ -46,18 +46,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({
-	resave: false,
-	saveUninitialized: true,
-	secret: 'SECRET'
-}));
+app.use(
+	session({
+		resave: false,
+		saveUninitialized: true,
+		secret: 'SECRET'
+	})
+);
 app.use(rateLimit);
 
 // allow cors
-app.use(cors({
-	credentials: true,
-	origin: '*'
-}));
+app.use(
+	cors({
+		credentials: true,
+		origin: '*'
+	})
+);
 
 // config passport
 app.use(passport.session());
@@ -74,8 +78,6 @@ app.use('/tripPicture', tripPictureRouter);
 app.use('/wish', wishRouter);
 app.use('/chat', chatRouter);
 app.use('/notification', notificationRouter);
-
-
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -96,7 +98,7 @@ app.use(function (err, req, res, next) {
 		return res.redirect(`${process.env.SERVER}/auth/google`);
 	}
 
-	res.status(err.status || 500).send({ err })
+	res.status(err.status || 500).send({ err });
 	// res.render('error');
 });
 

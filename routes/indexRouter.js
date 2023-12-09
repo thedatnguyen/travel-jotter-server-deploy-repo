@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
 	<div style="position: absolute;bottom:5px; width: 100%; text-align:center">
 	&copy; copyright by jiathinhj
 	</div>
-	`)
-})
+	`);
+});
 
 module.exports = router;
