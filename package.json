@@ -3,8 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www",
+    "start": "nodemon ./bin/www",
     "fix": "npx eslint --fix .",
     "build": "docker buildx build --platform linux/amd64 . -t thedatnguyen/travel-jotter-be:$tag"
   },
