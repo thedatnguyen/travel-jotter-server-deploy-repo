@@ -1,4 +1,5 @@
 const { sendMail } = require('../utils/nodemailer');
+const { getCookies } = require('../utils/helper')
 const { emailVerifyToken, tokenValidate } = require('../utils/jwt');
 const { authService } = require('../services/authService');
 
@@ -57,8 +58,9 @@ const verifyEmail = async (req, res) => {
 
 const loginWithPassword = async (req, res) => {
 	try {
+		const sid = getCookies(req)['connect.sid'];
 		const { email, password } = req.body;
-		const { error, result } = await authService.loginWithPassword(email, password);
+		const { error, result } = await authService.loginWithPassword(email, password, sid);
 		if (error) return errorHandler(res, error, 400);
 		return res.status(200).send({
 			result: result.account,

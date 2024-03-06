@@ -90,7 +90,7 @@ const createNewAccount = async (email) => {
 	}
 };
 
-const loginWithPassword = async (email, password) => {
+const loginWithPassword = async (email, password, sid) => {
 	try {
 		await prisma.$connect();
 		const account = await prisma.account.findUnique({
@@ -106,9 +106,10 @@ const loginWithPassword = async (email, password) => {
 
 		const { accessToken, refreshToken } = loginToken(account);
 		const refreshTokenData = {
-			email: email,
-			refreshToken: refreshToken,
-			iat: new Date().getTime()
+			sid,
+			email,
+			refreshToken,
+			loginAt: Date.now(),
 		};
 		await prisma.refreshToken.upsert({
 			where: { email: email },

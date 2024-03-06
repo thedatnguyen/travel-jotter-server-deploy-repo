@@ -32,15 +32,17 @@ model Account {
   Comment        Comment[]
   Notification   Notification[]
   Post           Post[]
-  RefreshToken   RefreshToken?
   SharedTrip     SharedTrip[]
   Trip           Trip[]
+  RefreshToken   RefreshToken[]
 }
 
 model RefreshToken {
-  email        String  @id
+  id           String  @id @default(uuid())
+  sid          String  @unique
+  email        String
   refreshToken String
-  iat          BigInt
+  loginAt      BigInt
   Account      Account @relation(fields: [email], references: [email], onDelete: Cascade)
 }
 
@@ -163,7 +165,7 @@ model OtherPostPicture {
 model Follow {
   following String
   follower  String
-
+  
   @@id([follower, following])
 }
 

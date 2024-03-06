@@ -1,71 +1,72 @@
 const { PrismaClient } = require('@prisma/client');
 
-const { tokenValidate, loginToken } = require('../utils/jwt');
+const { tokenValidate, tokenGenerate } = require('../utils/jwt');
+const { getCookies } = require('../utils/helper');
 
 const prisma = new PrismaClient();
 
 module.exports = async (req, res, next) => {
 	try {
+		/* get cookies */
+		const cookies = getCookies(req);
+		const accessToken = cookies['access-token'] || req.headers['access-token'];
+		const refreshToken = cookies['refresh-token'] || req.headers['refresh-token'];
+		if(!accessToken || !refreshToken) return res.status(403).send({error: {message: 'Missing token(s)'}});
 
-		if (!req.headers['access-token'] || !req.headers['refresh-token']) {
-			return res.status(403).send({error: {message: 'Missing token'}});
-		}
+		const {error, decoded: account} = tokenValidate(accessToken, process.env.TOKEN_SECRET);
 
-		let accessTokenValidate = tokenValidate(req.headers['access-token'], process.env.TOKEN_SECRET);
-		// access token valid
-		if (!accessTokenValidate.error) {
+		/* access token valid */
+		if(!error){
 			res.locals = {
-				account: accessTokenValidate.decoded,
+				account,
 				tokens: {
-					access_token: req.headers['access-token'],
-					refresh_token: req.headers['refresh-token']
+					access_token: accessToken,
+					refresh_token: refreshToken
 				}
-			};
+			}
 			return next();
 		}
 
-		//* access token invalid, check refresh token *//
-		const { error, decoded } = tokenValidate(req.headers['refresh-token'], process.env.REFRESH_TOKEN_SECRET);
+		/* access token not validated, check refresh token */
+		const { decoded } = tokenValidate(refreshToken, process.env.REFRESH_TOKEN_SECRET);
 
-		// refresh token invalid
-		if (error) return res.status(403).send({ message: error.message });
-		const accountData = decoded;
+		/* get refreshToken stored in DB */
+		const refreshTokenStoraged = await prisma.refreshToken.findUnique({
+			where: {sid: cookies['connect.sid']}
+		})
 
-		// check refresh token store in DB
-		const refreshToken = await prisma.refreshToken.findUnique({
-			where: {
-				email: accountData.email,
-				refreshToken: req.headers['refresh-token']
-			},
-		});
+		if(!refreshTokenStoraged) return res.status(403).send({ error: { message: 'Unrecognized session'}});
 
-		// refresh token not found in DB
-		if (!refreshToken) return res.status(403).send({error: { message: 'Unauthorized' }});
+		//* sid and refreshToken found in DB, and refreshToken in cookies is valid *//
+		if(refreshTokenStoraged.refreshToken == refreshToken && decoded){
+			delete decoded.iat;
+			delete decoded.exp;
+			const expInMillisecond = refreshTokenStoraged.loginAt + 1000 * 60 * 60 * 24 * 365 - Date.now();
+			const newRefreshToken = tokenGenerate(decoded, process.env.REFRESH_TOKEN_SECRET, Math.floor(expInMillisecond / 1000));
+			const newAccessToken = tokenGenerate(decoded, process.env.TOKEN_SECRET, 60 * 10);
 
-		// refresh token expired due to logiin session ended
-		if (BigInt(new Date().getTime()) - refreshToken.iat > 1000 * 60 * 60 * 24 * 365) {
-			await prisma.refreshToken.delete({
-				where: { email: accountData.email }
-			});
-			return res.status(401).send({error: { message: 'Login session end' }});
+			/* update new refreshToken */
+			await prisma.refreshToken.update({
+				where: {sid: cookies['connect.sid']},
+				data: {refreshToken: newRefreshToken}
+			})
+			
+			res.locals = {
+				account: decoded,
+				tokens: {
+					access_token: newAccessToken,
+					refresh_token: newRefreshToken
+				}
+			}
+			return next();
 		}
 
-		// authorize success, update refresh token
-		delete accountData.exp;
-		delete accountData.iat;
-		const tokens = loginToken(accountData);
-		await prisma.refreshToken.update({
-			where: { email: accountData.email },
-			data: { refreshToken: tokens.refreshToken }
-		});
-		res.locals = {
-			account: accountData,
-			tokens: {
-				access_token: tokens.accessToken,
-				refresh_token: tokens.refreshToken
-			}
-		};
-		next();
+		/* refreshToken invalid due to wrong token, login session ended, ... */
+		if(refreshTokenStoraged) await prisma.refreshToken.delete({
+			where: {sid: cookies['connect.sid']}
+		})
+
+		return res.status(403).send({ error: { message: 'Unthorized'}});
 	} catch (error) {
 		console.log(error);
 		res.status(500).send({error: { message: error.message }});

@@ -99,6 +99,32 @@ const messageBroker = require('../utils/redis');
         })
         break
       }
+
+      case 'new follower':{
+        const {following, follower} = data;
+
+        const notification = {
+          owner: following,
+          title: 'New follower',
+          content: `${follower} has just followed you`,
+          createAt: new Date().toISOString()
+        }
+
+        //  push noti realtime
+        const { result: socketId } = await messageBroker.get(following)
+        if (socketId) {
+          messageBroker.pub('notification', {
+            socketId,
+            data: notification
+          })
+        }
+
+        // save record to datatabase
+        await prisma.notification.create({
+          data: notification
+        });
+        break
+      }
     }
   } catch (error) {
     console.log(error)

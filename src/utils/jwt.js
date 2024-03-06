@@ -10,30 +10,36 @@ const emailVerifyToken = email => {
 };
 
 const loginToken = (accountData) => {
-	const accessToken = jwt.sign(
-		accountData,
-		process.env.TOKEN_SECRET,
-		{ expiresIn: 60 * 60 * 24 * 30 } // 1 hour
-	);
-	const refreshToken = jwt.sign(
-		accountData,
-		process.env.REFRESH_TOKEN_SECRET,
-		{ expiresIn: 60 * 60 * 24 * 365 } // 1 year
-	);
-	return { accessToken, refreshToken };
+	return { 
+		accessToken: tokenGenerate(accountData, process.env.TOKEN_SECRET, 60 * 10), // expires in 10 mins
+		refreshToken: tokenGenerate(accountData, process.env.REFRESH_TOKEN_SECRET, 60 * 60 * 24 * 365)
+	}
+};
+
+const tokenGenerate = (payload, secretKey, exp) => {
+	const token = jwt.sign(
+		payload,
+		secretKey,
+		{ expiresIn: exp }
+	)
+	return token;
 };
 
 const tokenValidate = (token, secretKey) => {
-	let r = {};
+	const result = {
+		error: undefined,
+		decoded: undefined
+	};
 	jwt.verify(token, secretKey, (error, decoded) => {
-		r.error = error;
-		r.decoded = decoded;
+		result.error = error,
+		result.decoded = decoded
 	});
-	return r;
+	return result;
 };
 
 module.exports = {
 	emailVerifyToken,
 	loginToken,
+	tokenGenerate,
 	tokenValidate
 };

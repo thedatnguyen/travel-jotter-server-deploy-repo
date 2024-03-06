@@ -205,8 +205,6 @@ const editMember = async (owner, emails, tripId) => {
 			})
 		);
 
-		// 123 -> 234 1234
-
 		// push notification
 		const workerData = {
 			action: 'editTripMembers',
