@@ -5,12 +5,16 @@ var router = express.Router();
 // const fs = require('fs');
 
 router.get('/', async (req, res) => {
-	const cookie = req.headers.cookie.split(';').reduce((result, e) => {
-		const [key, value] = e.split('=');
-		result[key] = value;
-		return result;
-	}, {});
-	console.log(cookie)
+	try{
+		const cookie = req.headers.cookie.split(';').reduce((result, e) => {
+			const [key, value] = e.split('=');
+			result[key] = value;
+			return result;
+		}, {});
+		console.log(cookie)
+	}catch(err){
+	}
+	
 	
 	res.send(`
 	<h3 style="text-align: center;">🎉 🎉 🎉 server alive 🎉 🎉 🎉</h3>

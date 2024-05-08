@@ -8,8 +8,8 @@
     "build": "docker buildx build --platform linux/amd64 . -t thedatnguyen/travel-jotter-be:$tag"
   },
   "dependencies": {
-    "@prisma/client": "^5.5.2",
-    "axios": "^1.6.0",
+    "@prisma/client": "^5.13.0",
+    "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
     "cookie-parser": "~1.4.4",
     "cookie-session": "^2.0.0",
@@ -40,7 +40,7 @@
   "devDependencies": {
     "eslint": "^8.55.0",
     "nodemon": "^3.0.1",
-    "prisma": "^5.5.2"
+    "prisma": "^5.13.0"
   },
   "main": "app.js",
   "author": "thedatnguyen - thedatnguyen98@gmail.com & jiathinhj - hoangvugiathinh@gmail.com",
